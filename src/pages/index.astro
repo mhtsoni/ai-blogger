@@ -1,0 +1,44 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+// Sort by date, newest first
+const sortedPosts = posts.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+---
+
+<Layout title="Blog">
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold mb-8">Blog Posts</h1>
+    
+    <div class="space-y-6">
+      {sortedPosts.map((post) => (
+        <article class="border-b border-gray-200 pb-6 last:border-0">
+          <a href={`/blog/${post.slug}`} class="block hover:opacity-80 transition-opacity">
+            <h2 class="text-2xl font-semibold mb-2 text-blue-600 hover:text-blue-800">
+              {post.data.title}
+            </h2>
+            <p class="text-gray-600 mb-2">{post.data.description}</p>
+            <time class="text-sm text-gray-500">
+              {new Date(post.data.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </a>
+        </article>
+      ))}
+    </div>
+    
+    {sortedPosts.length === 0 && (
+      <p class="text-gray-500">No blog posts yet. Add some .md files to the content/blog folder!</p>
+    )}
+  </main>
+</Layout>
+
