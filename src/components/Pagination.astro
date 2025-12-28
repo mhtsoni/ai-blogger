@@ -1,0 +1,43 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+const getPageUrl = (page: number) => {
+  if (page === 1) return baseUrl;
+  return `${baseUrl}/page/${page}`;
+};
+---
+
+{totalPages > 1 && (
+  <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-12" aria-label="Pagination">
+    <div class="hidden sm:block">
+      <p class="text-sm text-gray-700">
+        Showing page <span class="font-medium">{currentPage}</span> of <span class="font-medium">{totalPages}</span>
+      </p>
+    </div>
+    <div class="flex flex-1 justify-between sm:justify-end gap-2">
+      {currentPage > 1 && (
+        <a
+          href={getPageUrl(currentPage - 1)}
+          class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+        >
+          Previous
+        </a>
+      )}
+      {currentPage < totalPages && (
+        <a
+          href={getPageUrl(currentPage + 1)}
+          class="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+        >
+          Next
+        </a>
+      )}
+    </div>
+  </nav>
+)}
+

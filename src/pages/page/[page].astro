@@ -1,27 +1,35 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Pagination from '../components/Pagination.astro';
+import Layout from '../../layouts/Layout.astro';
+import Pagination from '../../components/Pagination.astro';
 import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+
+  const POSTS_PER_PAGE = 100;
+  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+  
+  return Array.from({ length: totalPages }, (_, i) => ({
+    params: { page: (i + 1).toString() },
+  })).filter((_, i) => i > 0); // Skip page 1 (handled by index)
+}
 
 const allPosts = await getCollection('blog', ({ data }) => {
   return import.meta.env.PROD ? data.draft !== true : true;
 });
 
-// Sort by date, newest first
 const sortedPosts = allPosts.sort((a, b) => 
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-// Extract categories from post slugs
+// Extract categories
 const categoryMap = new Map<string, number>();
 sortedPosts.forEach((post) => {
   const parts = post.slug.split('/');
   if (parts.length > 1) {
     const categorySlug = parts[0];
-    const categoryName = categorySlug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
     categoryMap.set(categorySlug, (categoryMap.get(categorySlug) || 0) + 1);
   }
 });
@@ -29,26 +37,23 @@ sortedPosts.forEach((post) => {
 const categories = Array.from(categoryMap.entries())
   .map(([slug, count]) => ({
     slug,
-    name: slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' '),
+    name: slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
     count
   }))
   .sort((a, b) => b.count - a.count);
 
-// Pagination: max 100 posts per page
 const POSTS_PER_PAGE = 100;
-const currentPage = 1;
+const currentPage = parseInt(Astro.params.page || '1');
 const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
-const paginatedPosts = sortedPosts.slice(0, POSTS_PER_PAGE);
+const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+const paginatedPosts = sortedPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 ---
 
-<Layout title="All Posts" categories={categories}>
+<Layout title={`All Posts - Page ${currentPage}`} categories={categories}>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 mb-2">All Posts</h1>
-      <p class="text-gray-600">Discover insights and perspectives</p>
+      <p class="text-gray-600">Page {currentPage} of {totalPages}</p>
     </div>
     
     <div class="space-y-8">
@@ -84,12 +89,7 @@ const paginatedPosts = sortedPosts.slice(0, POSTS_PER_PAGE);
       ))}
     </div>
 
-    {sortedPosts.length === 0 && (
-      <div class="text-center py-12">
-        <p class="text-gray-500 text-lg">No blog posts yet. Add some .md files to get started!</p>
-      </div>
-    )}
-
     <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/" />
   </div>
 </Layout>
+

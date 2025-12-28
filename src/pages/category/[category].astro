@@ -1,0 +1,115 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Pagination from '../../components/Pagination.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
+
+  // Extract unique categories
+  const categorySet = new Set<string>();
+  allPosts.forEach((post) => {
+    const parts = post.slug.split('/');
+    if (parts.length > 1) {
+      categorySet.add(parts[0]);
+    }
+  });
+
+  return Array.from(categorySet).map((category) => ({
+    params: { category },
+  }));
+}
+
+const allPosts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+const categorySlug = Astro.params.category || '';
+
+// Filter posts by category
+const categoryPosts = allPosts
+  .filter((post) => post.slug.startsWith(`${categorySlug}/`))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+// Extract all categories for navigation
+const categoryMap = new Map<string, number>();
+allPosts.forEach((post) => {
+  const parts = post.slug.split('/');
+  if (parts.length > 1) {
+    const catSlug = parts[0];
+    categoryMap.set(catSlug, (categoryMap.get(catSlug) || 0) + 1);
+  }
+});
+
+const categories = Array.from(categoryMap.entries())
+  .map(([slug, count]) => ({
+    slug,
+    name: slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    count
+  }))
+  .sort((a, b) => b.count - a.count);
+
+const categoryName = categorySlug
+  .split('-')
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(' ');
+
+// Pagination
+const POSTS_PER_PAGE = 100;
+const currentPage = 1;
+const totalPages = Math.ceil(categoryPosts.length / POSTS_PER_PAGE);
+const paginatedPosts = categoryPosts.slice(0, POSTS_PER_PAGE);
+---
+
+<Layout title={categoryName} categories={categories} currentCategory={categorySlug}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div class="mb-8">
+      <nav class="text-sm text-gray-500 mb-4">
+        <a href="/" class="hover:text-gray-700">All Posts</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">{categoryName}</span>
+      </nav>
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">{categoryName}</h1>
+      <p class="text-gray-600">{categoryPosts.length} {categoryPosts.length === 1 ? 'post' : 'posts'}</p>
+    </div>
+    
+    <div class="space-y-8">
+      {paginatedPosts.map((post) => (
+        <article class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <a href={`/blog/${post.slug}`} class="block">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                  {post.data.title}
+                </h2>
+                {post.data.description && (
+                  <p class="text-gray-600 mb-3 line-clamp-2">{post.data.description}</p>
+                )}
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                  <time>
+                    {new Date(post.data.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </div>
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    {categoryPosts.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-500 text-lg">No posts found in this category.</p>
+      </div>
+    )}
+
+    <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={`/category/${categorySlug}`} />
+  </div>
+</Layout>
+

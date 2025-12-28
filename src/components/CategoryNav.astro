@@ -1,0 +1,39 @@
+---
+interface Props {
+  categories: Array<{ name: string; slug: string; count: number }>;
+  currentCategory?: string;
+}
+
+const { categories, currentCategory } = Astro.props;
+---
+
+<nav class="space-y-1">
+  <a 
+    href="/" 
+    class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+      !currentCategory 
+        ? 'bg-blue-50 text-blue-700' 
+        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+    }`}
+  >
+    All Posts
+  </a>
+  {categories.map((category) => (
+    <a
+      href={`/category/${category.slug}`}
+      class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+        currentCategory === category.slug
+          ? 'bg-blue-50 text-blue-700'
+          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+      }`}
+    >
+      <span class="flex items-center justify-between">
+        <span>{category.name}</span>
+        <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+          {category.count}
+        </span>
+      </span>
+    </a>
+  ))}
+</nav>
+

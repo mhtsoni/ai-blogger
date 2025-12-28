@@ -1,30 +1,112 @@
 ---
+import CategoryNav from '../components/CategoryNav.astro';
+
 interface Props {
   title: string;
+  categories?: Array<{ name: string; slug: string; count: number }>;
+  currentCategory?: string;
 }
 
-const { title } = Astro.props;
+const { title, categories = [], currentCategory } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="AI Blogger - Static blog site" />
+    <meta name="description" content="Insights - A collection of thoughts and perspectives" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+    <title>{title} | Insights</title>
   </head>
-  <body class="bg-white text-gray-900">
-    <nav class="border-b border-gray-200 bg-white">
-      <div class="max-w-4xl mx-auto px-4 py-4">
-        <a href="/" class="text-xl font-bold text-blue-600 hover:text-blue-800">
-          AI Blogger
-        </a>
+  <body class="h-full bg-gray-50">
+    <div class="min-h-full">
+      <!-- Mobile menu button -->
+      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <a href="/" class="text-xl font-bold text-gray-900">Insights</a>
+        <button id="mobile-menu-button" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
-    </nav>
-    <slot />
+
+      <div class="lg:flex lg:gap-8">
+        <!-- Sidebar -->
+        <aside class="hidden lg:block lg:w-64 lg:flex-shrink-0">
+          <div class="sticky top-0 h-screen overflow-y-auto border-r border-gray-200 bg-white">
+            <div class="p-6">
+              <a href="/" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors block mb-8">
+                Insights
+              </a>
+              {categories.length > 0 && (
+                <div>
+                  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Categories</h3>
+                  <CategoryNav categories={categories} currentCategory={currentCategory} />
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        <!-- Mobile sidebar overlay -->
+        <div id="mobile-sidebar" class="hidden fixed inset-0 z-40 lg:hidden">
+          <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="mobile-overlay"></div>
+          <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-8">
+                <a href="/" class="text-2xl font-bold text-gray-900">Insights</a>
+                <button id="mobile-close-button" class="p-2 rounded-md text-gray-400 hover:text-gray-500">
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {categories.length > 0 && (
+                <div>
+                  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Categories</h3>
+                  <CategoryNav categories={categories} currentCategory={currentCategory} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="flex-1 lg:min-w-0">
+          <div class="pt-16 lg:pt-0">
+            <slot />
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Mobile menu toggle
+      const menuButton = document.getElementById('mobile-menu-button');
+      const closeButton = document.getElementById('mobile-close-button');
+      const mobileSidebar = document.getElementById('mobile-sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+
+      function openMenu() {
+        mobileSidebar?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        mobileSidebar?.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+
+      menuButton?.addEventListener('click', openMenu);
+      closeButton?.addEventListener('click', closeMenu);
+      overlay?.addEventListener('click', closeMenu);
+
+      // Close menu on category link click
+      document.querySelectorAll('#mobile-sidebar a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+    </script>
   </body>
 </html>
-
