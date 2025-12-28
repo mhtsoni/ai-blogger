@@ -36,7 +36,7 @@ When executing this document for category-based blog generation:
 
 ## Pre-Execution Phase: Existing Blog Discovery
 Before generating any blog ideas:
-1. Read all existing `.md` files from `content/blog/` directory recursively (including all subdirectories)
+1. Read all existing `.md` files from `src/content/blog/` directory recursively (including all subdirectories)
 2. For each markdown file found:
    - Extract the `title` from frontmatter
    - Extract the `description` from frontmatter (if available)
@@ -77,7 +77,7 @@ For each of the 10 generated ideas:
 ## File Organization Instructions
 Blog files must be organized as follows:
 
-**File Location:** `content/blog/{category-name}/{slug}.md`
+**File Location:** `src/content/blog/{category-name}/{slug}.md`
 
 **Category Name Format:**
 - Convert category to lowercase
@@ -96,7 +96,7 @@ Blog files must be organized as follows:
 - Example: "Understanding useState Hook" → "understanding-usestate-hook"
 
 **Folder Creation:**
-- Create the category folder if it doesn't exist: `content/blog/{category-name}/`
+- Create the category folder if it doesn't exist: `src/content/blog/{category-name}/`
 - Ensure the folder structure is created before writing files
 
 ---
@@ -268,7 +268,7 @@ If any answer is “no”, revise.
 ### Category-Based Workflow (Primary)
 When a **category** is provided:
 1. **Discover existing blogs:**
-   - Read all `.md` files from `content/blog/` recursively
+   - Read all `.md` files from `src/content/blog/` recursively
    - Extract titles and descriptions from frontmatter
    - Build inventory of existing content
 
@@ -285,10 +285,10 @@ When a **category** is provided:
 4. **Write unique blogs:**
    - For each unique idea:
      - Generate slug from title (lowercase, hyphenated, no special chars)
-     - Determine category folder: `content/blog/{category-name}/`
+     - Determine category folder: `src/content/blog/{category-name}/`
      - Create category folder if it doesn't exist
      - Follow Steps 1–9 below to write the blog
-     - Save to `content/blog/{category-name}/{slug}.md` with proper frontmatter
+     - Save to `src/content/blog/{category-name}/{slug}.md` with proper frontmatter
 
 ### Direct Title Workflow (Legacy)
 When a **blog title** is provided directly (not category):

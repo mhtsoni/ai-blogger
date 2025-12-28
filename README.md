@@ -10,7 +10,7 @@ A fast, static blog site built with Astro that automatically generates pages fro
    ```
 
 2. **Add your blog posts:**
-   - Add `.md` files to the `content/blog/` folder
+   - Add `.md` files to the `src/content/blog/` folder
    - Each file needs frontmatter with `title`, `date`, and optionally `description`
 
 3. **Run locally:**
@@ -25,7 +25,7 @@ A fast, static blog site built with Astro that automatically generates pages fro
 
 ## Markdown File Format
 
-Create `.md` files in `content/blog/` with this structure:
+Create `.md` files in `src/content/blog/` with this structure:
 
 ```markdown
 ---
@@ -67,9 +67,9 @@ Both Vercel and Netlify automatically:
 ## Project Structure
 
 ```
-├── content/
-│   └── blog/          # Add your .md files here
 ├── src/
+│   ├── content/
+│   │   └── blog/      # Add your .md files here
 │   ├── layouts/       # Page layouts
 │   └── pages/         # Route pages
 ├── public/            # Static assets

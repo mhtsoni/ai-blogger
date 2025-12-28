@@ -42,11 +42,11 @@
 
 ## Folder Structure Preservation
 
-Your folder structure in `content/blog/` is preserved in URLs:
+Your folder structure in `src/content/blog/` is preserved in URLs:
 
-- `content/blog/post.md` → `/blog/post`
-- `content/blog/category/post.md` → `/blog/category/post`
-- `content/blog/2024/january/post.md` → `/blog/2024/january/post`
+- `src/content/blog/post.md` → `/blog/post`
+- `src/content/blog/category/post.md` → `/blog/category/post`
+- `src/content/blog/2024/january/post.md` → `/blog/2024/january/post`
 
-Just add `.md` files anywhere in `content/blog/` and the structure is automatically reflected!
+Just add `.md` files anywhere in `src/content/blog/` and the structure is automatically reflected!
 
